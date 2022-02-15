@@ -78,8 +78,6 @@ async function resetList(msg) {
   var voiceMembers = await loc_getVoiceList(msg);
   var roleMembers = await loc_getRoleList(msg);
 
-  console.log(voiceMembers, roleMembers);
-
   var addList = [];
   var removeList = [];
   if (roleMembers.length != 0) {
@@ -96,7 +94,6 @@ async function resetList(msg) {
       }
     });
   }
-  console.log(removeList, addList);
 }
 
 function createChannels(msg) {
