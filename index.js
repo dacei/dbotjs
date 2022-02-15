@@ -24,3 +24,7 @@ client.on('voiceStateUpdate', (old_state, new_state) => {
 });
 
 client.login(token);
+
+process.on('unhandledRejection', r => {
+  console.warn(`\n[Rejection - ${new Date().toLocaleString()}]\n${r}\n[/Rejection]`);
+})
