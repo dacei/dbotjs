@@ -24,7 +24,12 @@ function voiceStateHandler(old_state, new_state) {
   ) return; // someone muted or smth in important ch
 
   if (old_state.channelId === goldenData.voiceChannelID) toggleRole(old_state, 0);
-  if (new_state.channelId === goldenData.voiceChannelID) toggleRole(new_state, 1);
+  if (new_state.channelId === goldenData.voiceChannelID) {
+    toggleRole(new_state, 1);
+
+    var logChannel = new_state.guild.channels.cache.get(goldenData.msgChannelID);
+    logChannel.send(`User joined: ${new_state.member.displayName}`);
+  }
 }
 
 module.exports = {
