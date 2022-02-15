@@ -1,16 +1,6 @@
 const { goldenData } = require('./config.json');
 const Discord = require('discord.js');
 
-function resetList(msg) {
-  console.log(msg);
-}
-
-function loc_usersInVoice(channel) {
-  var currentUserlist = [];
-  for (const [memberID] of channel.members) currentUserlist.push(memberID);
-  return currentUserlist;
-}
-
 function loc_checkChannel(cache, user) {
   const channel = cache.find(c => c.name === user);
   if (channel) return true;
@@ -67,9 +57,51 @@ function loc_createChannel(chs, userID, groupID, serverID, botID) {
     });
 }
 
+function loc_changeRole(msg, uID, action) {
+  var user = msg.guild.members.cache.get(uID);
+  if (action === 0) user.roles.remove(goldenData.roleID, "User was in role but not in voice");
+  if (action === 1) user.roles.add(goldenData.roleID, "User was in voice but not in role");
+  return uID;
+}
+async function loc_getVoiceList(msg) {
+  var voiceChannel = msg.guild.channels.cache.get(goldenData.voiceChannelID);
+  return voiceChannel.members.map(m => m.id);
+}
+
+async function loc_getRoleList(msg) {
+  var role = await msg.guild.roles.fetch(goldenData.roleID);
+  return role.members.map(m => m.id);
+}
+
+async function resetList(msg) {
+
+  var voiceMembers = await loc_getVoiceList(msg);
+  var roleMembers = await loc_getRoleList(msg);
+
+  console.log(voiceMembers, roleMembers);
+
+  var addList = [];
+  var removeList = [];
+  if (roleMembers.length != 0) {
+    roleMembers.forEach(u => {
+      if (!voiceMembers.includes(u)) {
+        removeList.push(loc_changeRole(msg, u, 0));
+      }
+    });
+  }
+  if (voiceMembers.length != 0) {
+    voiceMembers.forEach(u => {
+      if (!roleMembers.includes(u)) {
+        addList.push(loc_changeRole(msg, u, 1));
+      }
+    });
+  }
+  console.log(removeList, addList);
+}
+
 function createChannels(msg) {
   var voiceChannel = msg.guild.channels.cache.get(goldenData.voiceChannelID);
-  var userList = loc_usersInVoice(voiceChannel);
+  var userList = loc_getMembers(voiceChannel);
   var userChannelList = loc_usersWithChannel(msg.guild.channels.cache, userList);
   for (let [key, val] of Object.entries(userChannelList)) {
     if (val === false) loc_createChannel(msg.guild.channels, key, goldenData.channelGroupID, goldenData.guildID);
@@ -78,7 +110,7 @@ function createChannels(msg) {
 
 function logToPersonalChannel(msg) {
   var voiceChannel = msg.guild.channels.cache.get(goldenData.voiceChannelID);
-  var userList = loc_usersInVoice(voiceChannel);
+  var userList = loc_getMembers(voiceChannel);
   var userChannelList = loc_usersWithChannel(msg.guild.channels.cache, userList);
   for (let [key, val] of Object.entries(userChannelList)) {
     if (val === true) {

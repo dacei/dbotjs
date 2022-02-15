@@ -2,8 +2,8 @@ const { prefix, ownerId, goldenData } = require('./config.json');
 const { toggleRole } = require('./voiceState.js');
 const { resetList, createChannels, logToPersonalChannel } = require('./messageCreate.js');
 
-function messageHandler(msg) {
-  if (msg.author.bot) return;
+async function messageHandler(msg) {
+  if (msg.author.bot || msg.channel.id != goldenData.msgChannelID) return;
   var log = true;
   if (msg.content === (`${prefix}r`) && ownerId.indexOf(msg.author.id) >= 0) {
     log = false;
@@ -15,7 +15,6 @@ function messageHandler(msg) {
   if (log) {
     logToPersonalChannel(msg);
   }
-
 }
 
 function voiceStateHandler(old_state, new_state) {
