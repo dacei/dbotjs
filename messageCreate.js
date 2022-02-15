@@ -58,19 +58,32 @@ function loc_createChannel(chs, userID, groupID, serverID, botID) {
 }
 
 function loc_changeRole(msg, uID, action) {
-  var user = msg.guild.members.cache.get(uID);
+  var main_guild = msg.client.guilds.cache.get(goldenData.guildID);
+  var user = main_guild.members.cache.get(uID);
   if (action === 0) user.roles.remove(goldenData.roleID, "User was in role but not in voice");
   if (action === 1) user.roles.add(goldenData.roleID, "User was in voice but not in role");
   return uID;
 }
+
+async function loc_getUsers(data) {
+  var list = [];
+  for (const [member] of data.members) {
+    if (member === goldenData.botID) continue;
+    else list.push(member);
+  }
+  return list;
+}
+
 async function loc_getVoiceList(msg) {
-  var voiceChannel = msg.guild.channels.cache.get(goldenData.voiceChannelID);
-  return voiceChannel.members.map(m => m.id);
+  var main_guild = msg.client.guilds.cache.get(goldenData.guildID);
+  var voiceChannel = main_guild.channels.cache.get(goldenData.voiceChannelID);
+  return loc_getUsers(voiceChannel);
 }
 
 async function loc_getRoleList(msg) {
-  var role = await msg.guild.roles.fetch(goldenData.roleID);
-  return role.members.map(m => m.id);
+  var main_guild = msg.client.guilds.cache.get(goldenData.guildID);
+  var role = await main_guild.roles.fetch(goldenData.roleID);
+  return loc_getUsers(role);
 }
 
 async function resetList(msg) {
@@ -94,6 +107,10 @@ async function resetList(msg) {
       }
     });
   }
+  return {
+    'addList': addList,
+    'removeList': removeList
+  };
 }
 
 async function createChannels(msg) {
@@ -115,8 +132,18 @@ async function logToPersonalChannel(msg) {
   }
 }
 
+async function resetResult(addList, removeList) {
+  var embed = new Discord.MessageEmbed();
+  embed.setDescription('Results');
+  embed.addField('IDs added to role: ', !addList.length == 0 ? addList.toString() : "None");
+  embed.addField('IDs removed from role: ', !removeList.length == 0 ? removeList.toString() : "None");
+
+  return embed;
+}
+
 module.exports = {
   resetList,
   createChannels,
-  logToPersonalChannel
+  logToPersonalChannel,
+  resetResult
 }

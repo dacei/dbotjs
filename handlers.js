@@ -1,15 +1,21 @@
 const { prefix, ownerId, goldenData } = require('./config.json');
 const { toggleRole } = require('./voiceState.js');
-const { resetList, createChannels, logToPersonalChannel } = require('./messageCreate.js');
+const { resetList, createChannels, logToPersonalChannel, resetResult } = require('./messageCreate.js');
 
 async function messageHandler(msg) {
-  if (msg.author.bot || msg.channel.id != goldenData.msgChannelID) return;
-  var log = true;
-  if (msg.content === (`${prefix}r`) && ownerId.indexOf(msg.author.id) >= 0) {
-    log = false;
-    resetList(msg);
+  if (msg.author.bot) return;
+  var log = false;
+  var cmd = false;
+  if (msg.channel.type === 'DM' || msg.channel.id === goldenData.msgChannelID) {
+    if (msg.content === (`${prefix}r`) && ownerId.indexOf(msg.author.id) >= 0) {
+      cmd = true;
+      const res = await resetList(msg);
+      var embed = await resetResult(res.addList, res.removeList);
+      msg.channel.send({embeds: [embed]});
+    }
   }
-  if (log && msg.channel.id === goldenData.msgChannelID) {
+  if (!cmd && msg.channel.id === goldenData.msgChannelID) {
+    log = true;
     createChannels(msg);
   }
   if (log) {
