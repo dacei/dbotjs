@@ -96,18 +96,16 @@ async function resetList(msg) {
   }
 }
 
-function createChannels(msg) {
-  var voiceChannel = msg.guild.channels.cache.get(goldenData.voiceChannelID);
-  var userList = loc_getMembers(voiceChannel);
+async function createChannels(msg) {
+  var userList = await loc_getVoiceList(msg);
   var userChannelList = loc_usersWithChannel(msg.guild.channels.cache, userList);
   for (let [key, val] of Object.entries(userChannelList)) {
     if (val === false) loc_createChannel(msg.guild.channels, key, goldenData.channelGroupID, goldenData.guildID);
   }
 }
 
-function logToPersonalChannel(msg) {
-  var voiceChannel = msg.guild.channels.cache.get(goldenData.voiceChannelID);
-  var userList = loc_getMembers(voiceChannel);
+async function logToPersonalChannel(msg) {
+  var userList = await loc_getVoiceList(msg);
   var userChannelList = loc_usersWithChannel(msg.guild.channels.cache, userList);
   for (let [key, val] of Object.entries(userChannelList)) {
     if (val === true) {
