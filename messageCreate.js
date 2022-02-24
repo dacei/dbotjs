@@ -40,18 +40,18 @@ function loc_createChannel(chs, userID, groupID, serverID, botID) {
   chs.create(userID)
     .then(ch => {
       ch.setParent(groupID);
-      ch.overwriteOptions([
+      ch.permissionOverwrites.set([
         {
           id: serverID,
-          deny: 'VIEW_CHANNEL'
+          deny: ['VIEW_CHANNEL']
         },
         {
           id: userID,
-          allow: 'VIEW_CHANNEL'
+          allow: ['VIEW_CHANNEL']
         },
         {
           id: botID,
-          allow: 'VIEW_CHANNEL'
+          allow: ['VIEW_CHANNEL']
         }
       ], 'Deny everyone from reading channel');
     });
@@ -117,7 +117,7 @@ async function createChannels(msg) {
   var userList = await loc_getVoiceList(msg);
   var userChannelList = loc_usersWithChannel(msg.guild.channels.cache, userList);
   for (let [key, val] of Object.entries(userChannelList)) {
-    if (val === false) loc_createChannel(msg.guild.channels, key, goldenData.channelGroupID, goldenData.guildID);
+    if (val === false) loc_createChannel(msg.guild.channels, key, goldenData.channelGroupID, goldenData.guildID, goldenData.botID);
   }
 }
 
