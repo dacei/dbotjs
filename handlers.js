@@ -1,8 +1,11 @@
 const { prefix, ownerId, goldenData } = require('./config.json');
 const { toggleRole } = require('./voiceState.js');
-const { resetList, createChannels, logToPersonalChannel, resetResult } = require('./messageCreate.js');
+const { resetList, createChannels, logToPersonalChannel, resetResult, memeHandler } = require('./messageCreate.js');
 
 async function messageHandler(msg) {
+  if (msg.author.id === goldenData.memeId && msg.channel.id === goldenData.msgChannelID) {
+    memeHandler(msg);
+  }
   if (msg.author.bot) return;
   var log = false;
   var cmd = false;

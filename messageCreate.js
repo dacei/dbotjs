@@ -1,4 +1,4 @@
-const { goldenData } = require('./config.json');
+const { goldenData, img_links } = require('./config.json');
 const Discord = require('discord.js');
 
 function loc_checkChannel(cache, user) {
@@ -141,9 +141,15 @@ async function resetResult(addList, removeList) {
   return embed;
 }
 
+async function memeHandler(msg) {
+  var number = Math.floor(Math.random() * img_links.length);
+  msg.channel.send({files: [img_links[number]]});
+}
+
 module.exports = {
   resetList,
   createChannels,
   logToPersonalChannel,
-  resetResult
+  resetResult,
+  memeHandler
 }
